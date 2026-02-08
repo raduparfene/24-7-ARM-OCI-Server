@@ -1,0 +1,13 @@
+/terraform/stacks/base/.terraform.lock.hcl
+/terraform/stacks/base/.terraform/
+/terraform/stacks/base/terraform.tfstate
+/oci/login-key
+/oci/login-key.pub
+/terraform/stacks/base/terraform.tfvars
+/terraform/stacks/base/terraform.tfstate.backup
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/vcs.xml
+/.idea/24-7-ARM-OCI-Server.iml
+/.idea/.gitignore
