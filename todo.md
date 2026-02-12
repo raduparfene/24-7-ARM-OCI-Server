@@ -8,3 +8,5 @@
 - maybe even add a rankstats database and a database for ammopacks
 - nginx for fast download inside code
 - improve scripts and download only what is necessary within the bootstrap.sh script
+
+- consider the case where you don't have a static ip already amd create it...

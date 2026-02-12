@@ -49,10 +49,11 @@ oci os ns get
 
 ## 2. Inside project root directory, execute:
 ```shell
-terraform -chdir=terraform/stacks/base destroy -auto-approve
 terraform -chdir=terraform/stacks/base init
-terraform -chdir=terraform/stacks/base plan
-terraform -chdir=terraform/stacks/base apply -auto-approve
+
+(terraform -chdir=terraform/stacks/base state rm oci_core_public_ip.reserved || true) && terraform -chdir=terraform/stacks/base destroy -auto-approve
+(terraform -chdir=terraform/stacks/base import oci_core_public_ip.reserved ocid1.publicip.oc1.eu-frankfurt-1.amaaaaaaayo4g5iahdp3kmdpyygarrldrgrlw67us5hluwb6dp432qa36t5a || true) && terraform -chdir=terraform/stacks/base plan
+(terraform -chdir=terraform/stacks/base import oci_core_public_ip.reserved ocid1.publicip.oc1.eu-frankfurt-1.amaaaaaaayo4g5iahdp3kmdpyygarrldrgrlw67us5hluwb6dp432qa36t5a || true) && terraform -chdir=terraform/stacks/base apply -auto-approve
 # the next times, it is sufficient to execute only destroy and apply
 ```
 
@@ -69,8 +70,6 @@ sudo tail -f /var/log/cloud-init-output.log
 ssh -i ~/.ssh/oci-login-key ubuntu@<YOUR_TERRAFORM_OUTPUT_IP> -L 5901:localhost:5901
 # Then open a RealVNC Viewer on localhost:5901, with the password set by you inside terraform.tfvars
 ```
-
-
 # In case you get errors with your ssh key, you can regenerate it with:
 ```shell
 ssh-keygen -f '~/.ssh/known_hosts' -R '<YOUR_TERRAFORM_OUTPUT_IP>'
