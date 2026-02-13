@@ -18,7 +18,7 @@
 - Game Ports: Open to 0.0.0.0/0 for public connectivity
 
 # 🎮 Game Servers
-The infrastructure is ready! Once the deployment is finished (check `/var/log/cloud-init-output.log` on the VM). 
+The infrastructure is ready! 
 If you want to play on my servers, you can try them at:
 - **Counter-Strike 1.6 - Zombie Plague:** `89.168.82.69:27016`
 - **Counter-Strike 1.6 - Zombie Swarm:** `89.168.82.69:27017`
