@@ -12,3 +12,8 @@ variable "reserved_public_ip_ocid" {
   description = "OCI OCID for the Public Static IP"
   type = string
 }
+
+variable "gitlab_token" {
+  description = "Token for GitLab pipelines"
+  type = string
+}

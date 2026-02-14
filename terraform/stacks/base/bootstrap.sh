@@ -137,6 +137,34 @@ sudo systemctl enable vncserver@1.service
 sudo systemctl start vncserver@1.service
 
 
+if [ -n "${GITLAB_TOKEN}" ]; then
+    # Install Gitlab CI
+    sudo curl -L --output /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-arm64
+    sudo chmod +x /usr/local/bin/gitlab-runner
+    sudo useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/bash
+    sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
+    sudo gitlab-runner start
+    sudo gitlab-runner register \
+      --non-interactive \
+      --url "https://gitlab.com/" \
+      --token "${GITLAB_TOKEN}" \
+      --executor "shell"
+    sudo mv /home/gitlab-runner/.bash_logout /home/gitlab-runner/.bash_logout.bak
+    sudo chown -R gitlab-runner:gitlab-runner /home/gitlab-runner/
+
+    # Install AWS CLI (necessary to run AWS commands)
+    sudo apt-get update && sudo apt-get install -y unzip
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+    unzip awscliv2.zip
+    sudo ./aws/install
+    rm -rf awscliv2.zip aws/
+else
+    echo "No GitLab token provided."
+fi
+
+
+
+
 
 # Install emulation and gaming dependencies
 sudo -u ubuntu /home/ubuntu/pi-apps/manage install Box64

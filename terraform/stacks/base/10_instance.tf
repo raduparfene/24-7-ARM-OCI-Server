@@ -29,6 +29,7 @@ resource "oci_core_instance" "vm" {
       templatefile("${path.module}/bootstrap.sh", {
         VNC_PASSWORD = var.vnc_password
         CS16_REPO = var.github_cs_repo
+        GITLAB_TOKEN = var.gitlab_token
       })
     )
   }
