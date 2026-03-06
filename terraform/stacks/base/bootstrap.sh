@@ -176,7 +176,7 @@ sudo apt-get install -y libsdl2-2.0-0
 if [ -n "${CS16_REPO}" ]; then
     echo "GitHub repository detected. Cleaning up before launch..."
 
-    # Step 1: Kill old processes to free up ports
+    # Kill old processes to free up ports
     sudo fuser -k 27016/udp 27017/udp > /dev/null 2>&1
     sudo pkill -9 hlds.exe > /dev/null 2>&1
     sleep 2 # Let the system breathe
@@ -186,26 +186,64 @@ if [ -n "${CS16_REPO}" ]; then
     git clone "${CS16_REPO}"
     sudo chown -R ubuntu:ubuntu "$TARGET_DIR/Counter-Strike-1.6-Servers"
     sudo chmod -R 755 "$TARGET_DIR/Counter-Strike-1.6-Servers"
-
-    # Step 2: Start Zombie Plague Server
-    echo "Starting ZP Server on port 27016..."
-    ZP_SERVER="$TARGET_DIR/Counter-Strike-1.6-Servers/Counter-StrikeZP"
-    cd "$ZP_SERVER"
-    sudo -u ubuntu bash -c "cd $ZP_SERVER && \
-    export DISPLAY=:1 && \
-    export LIBGL_ALWAYS_SOFTWARE=1 && \
-    nohup box64 wine ./hlds.exe -console -game cstrike +ip 0.0.0.0 +port 27016 +maxplayers 32 +map zm_dust2 -nomaster > /home/ubuntu/zp_log.txt 2>&1 &"
-
-    # Step C: Start Zombie Swarm Server
-    echo "Starting ZS Server on port 27017..."
-    ZS_SERVER="$TARGET_DIR/Counter-Strike-1.6-Servers/Counter-StrikeZS"
-    cd "$ZS_SERVER"
-    sudo -u ubuntu bash -c "cd $ZS_SERVER && \
-    export DISPLAY=:1 && \
-    export LIBGL_ALWAYS_SOFTWARE=1 && \
-    nohup box64 wine ./hlds.exe -console -game cstrike +ip 0.0.0.0 +port 27017 +maxplayers 32 +map zm_dust2 -nomaster > /home/ubuntu/zs_log.txt 2>&1 &"
-
-    echo "Servers started in the background!"
 else
     echo "No GitHub token provided."
 fi
+
+
+
+
+# Zombie Plague Server
+sudo tee /etc/systemd/system/cs16-zp.service > /dev/null <<EOF
+[Unit]
+Description=CS 1.6 Zombie Plague
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/Desktop/Counter-Strike-1.6-Servers/Counter-StrikeZP
+Environment=DISPLAY=:1
+Environment=LIBGL_ALWAYS_SOFTWARE=1
+# Curatam lock-urile vechi inainte de start
+ExecStartPre=-/usr/bin/rm -f /tmp/.X1-lock /tmp/.X11-unix/X1
+ExecStart=/usr/local/bin/box64 wine ./hlds.exe -console -game cstrike +ip 0.0.0.0 +port 27016 +hostname "Zombie Plague Server" +maxplayers 32 +map zm_dust2 -nomaster
+Restart=always
+RestartSec=10
+RuntimeMaxSec=86400
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Zombie Swarm Server
+sudo tee /etc/systemd/system/cs16-zs.service > /dev/null <<EOF
+[Unit]
+Description=CS 1.6 Zombie Swarm
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/Desktop/Counter-Strike-1.6-Servers/Counter-StrikeZS
+Environment=DISPLAY=:2
+Environment=LIBGL_ALWAYS_SOFTWARE=1
+# Curatam lock-urile vechi inainte de start
+ExecStartPre=-/usr/bin/rm -f /tmp/.X2-lock /tmp/.X11-unix/X2
+ExecStart=/usr/local/bin/box64 wine ./hlds.exe -console -game cstrike +ip 0.0.0.0 +port 27017 +hostname "Zombie Swarm Server" +maxplayers 32 +map zm_dust2 -nomaster
+Restart=always
+RestartSec=10
+RuntimeMaxSec=86400
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Activare servicii
+sudo systemctl daemon-reload
+sudo systemctl enable cs16-zp
+sudo systemctl enable cs16-zs
+sudo systemctl start cs16-zp
+sudo systemctl start cs16-zs
+
+echo "Servers started in the background!"
